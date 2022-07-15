@@ -32,5 +32,5 @@ export function isReadonly(value) {
 }
 
 export function isProxy(value) {
-  return isReactive(value) || isReactive(value);
+  return isReactive(value) || isReadonly(value);
 }

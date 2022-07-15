@@ -80,20 +80,24 @@ export function track(target, key) {
     depsMap.set(key, dep);
   }
 
-  if (!shouldTrack) return;
-  if (!activeEffect) return;
-
-  if (dep.has(activeEffect)) return;
-
-  dep.add(activeEffect);
-  // effect 也要搜集dep,用于调用stop时,从所有dep中删除effect
-  activeEffect.deps.push(dep);
+  trackEffects(dep);
 }
 
 export function trigger(target, key) {
   const depsMap = targetMap.get(target);
   const deps = depsMap.get(key);
+  triggerEffects(deps);
+}
 
+export function trackEffects(dep) {
+  if (!isTracking()) return;
+  if (dep.has(activeEffect)) return;
+  dep.add(activeEffect);
+  // effect 也要搜集dep,用于调用stop时,从所有dep中删除effect
+  activeEffect?.deps.push(dep);
+}
+
+export function triggerEffects(deps) {
   for (const effect of deps) {
     //如果有 scheduler 先执行 scheduler
     if (effect.scheduler) {
