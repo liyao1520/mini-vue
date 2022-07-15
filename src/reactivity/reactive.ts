@@ -1,4 +1,8 @@
-import { readonlyHandlers, mutableHandlers } from "./baseHandles";
+import {
+  readonlyHandlers,
+  mutableHandlers,
+  shallowReadonlyHandlers,
+} from "./baseHandles";
 
 export enum ReactiveFlags {
   IS_REACTIVE = "__v_isReactive",
@@ -6,14 +10,17 @@ export enum ReactiveFlags {
 }
 
 export function reactive(raw) {
-  return createActiveObject(raw, mutableHandlers);
+  return createReactiveObject(raw, mutableHandlers);
 }
 
 export function readonly(raw) {
-  return createActiveObject(raw, readonlyHandlers);
+  return createReactiveObject(raw, readonlyHandlers);
+}
+export function shallowReadonly(raw) {
+  return createReactiveObject(raw, shallowReadonlyHandlers);
 }
 //创建响应式对象,可以创建readonly和reactive两种类型的proxy
-function createActiveObject(raw, baseHandlers) {
+function createReactiveObject(raw, baseHandlers) {
   return new Proxy(raw, baseHandlers);
 }
 
@@ -22,4 +29,8 @@ export function isReactive(value) {
 }
 export function isReadonly(value) {
   return !!value[ReactiveFlags.IS_READONLY];
+}
+
+export function isProxy(value) {
+  return isReactive(value) || isReactive(value);
 }
