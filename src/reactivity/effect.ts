@@ -3,7 +3,7 @@ import { extend } from "../shared/index";
 let activeEffect: undefined | ReactiveEffect = undefined;
 let shouldTrack = false;
 
-class ReactiveEffect {
+export class ReactiveEffect {
   private _fn: any;
   deps: any[] = [];
   active = true;
@@ -85,7 +85,11 @@ export function track(target, key) {
 
 export function trigger(target, key) {
   const depsMap = targetMap.get(target);
+  // 可能先触发set,这时还没有track
+  if (!depsMap) return;
   const deps = depsMap.get(key);
+  // 可能 target[key] 先触发set,这时还没有track
+  if (!deps) return;
   triggerEffects(deps);
 }
 
