@@ -1,4 +1,4 @@
-import { h } from "../../lib/mini-vue.esm.js";
+import { h, createTextVNode } from "../../lib/mini-vue.esm.js";
 import { Foo } from "./Foo.js";
 
 export const App = {
@@ -14,6 +14,7 @@ export const App = {
           footer: () => h("span", {}, "footerSlotContent"),
         }
       ),
+      createTextVNode("123"),
     ]);
   },
 };

@@ -1,19 +1,31 @@
-import { isArray, isObject, isString } from "../shared";
+import { Fragment, Text } from "./vnode";
 import { ShapeFlags } from "../shared/ShapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
+import { isObject } from "../shared";
 
 export function render(vnode, container) {
   //  patch
   patch(vnode, container);
 }
 function patch(vnode, container: any) {
-  const { shapeFlag } = vnode;
+  const { shapeFlag, type } = vnode;
 
-  // 去处理组件
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+  switch (type) {
+    case Fragment:
+      // Fragment 类型
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        // 处理Element
+        processElement(vnode, container);
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        // 去处理组件
+        processComponent(vnode, container);
+      }
   }
 }
 
@@ -78,4 +90,15 @@ function setupRenderEffect(instance: any, container: any) {
 }
 function isOn(key: string) {
   return /^on[A-Z]/.test(key);
+}
+function processFragment(vnode, container) {
+  if (vnode.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+    mountChildren(vnode.children, container);
+  }
+}
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  // vnode.el 也要赋值
+  const textNode = (vnode.el = document.createTextNode(children));
+  container.appendChild(textNode);
 }
