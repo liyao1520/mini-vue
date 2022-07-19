@@ -7,12 +7,17 @@ export const App = {
     return h("div", { class: "test", id: "test" }, [
       h("span", {}, "hi"),
       h("span", {}, this.msg),
-      h(Foo, {
-        count: 2,
-        onAddCount(a, b, c) {
-          console.log("onAdd", a, b, c);
+      "ok",
+      h(
+        Foo,
+        {
+          count: 2,
+          onAddCount(a, b, c) {
+            console.log("onAdd", a, b, c);
+          },
         },
-      }),
+        "123"
+      ),
     ]);
   },
   setup() {

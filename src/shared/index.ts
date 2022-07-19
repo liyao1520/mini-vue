@@ -11,7 +11,9 @@ export function isArray(arr) {
 export function isString(str: unknown) {
   return typeof str === "string";
 }
-
+export function isFunction(fn: unknown) {
+  return typeof fn === "function";
+}
 export function hasChanged(value, newValue) {
   return !Object.is(value, newValue);
 }
