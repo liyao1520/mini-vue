@@ -1,7 +1,10 @@
-import { h, renderSlot } from "../../lib/mini-vue.esm.js";
+import { h, renderSlot, getCurrentInstance } from "../../lib/mini-vue.esm.js";
 
 export const Foo = {
-  setup() {},
+  setup() {
+    const instance = getCurrentInstance();
+    console.log(instance);
+  },
   render() {
     return h("div", {}, [
       renderSlot(this.$slots, "header"),
