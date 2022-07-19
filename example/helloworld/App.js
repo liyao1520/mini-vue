@@ -1,9 +1,11 @@
 import { h } from "../../lib/mini-vue.esm.js";
 export const App = {
   render() {
+    console.log(this);
     return h("div", { class: "test", id: "test" }, [
       h("span", {}, "hi"),
-      h("span", {}, "mini-vue"),
+      h("span", {}, this.msg),
+      h("span", null, "!"),
     ]);
   },
   setup() {

@@ -31,10 +31,11 @@ function mountElement(vnode: any, container: any) {
   }
 
   //props
-  for (const key in props) {
-    const val = props[key];
-
-    el.setAttribute(key, val);
+  if (isObject(props)) {
+    for (const key in props) {
+      const val = props[key];
+      el.setAttribute(key, val);
+    }
   }
   container.appendChild(el);
 }
@@ -59,7 +60,7 @@ function mountComponent(vnode: any, container: any) {
 }
 
 function setupRenderEffect(instance: any, container: any) {
-  const subTree = instance.render();
+  const subTree = instance.render.call(instance.proxy);
 
   patch(subTree, container);
   // vnode tree
