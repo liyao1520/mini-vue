@@ -9,16 +9,10 @@ export const App = {
       h("span", {}, this.msg),
       h(Foo, {
         count: 2,
-      }),
-      h(
-        "button",
-        {
-          onClick() {
-            console.log("ok");
-          },
+        onAddCount(a, b, c) {
+          console.log("onAdd", a, b, c);
         },
-        "btn"
-      ),
+      }),
     ]);
   },
   setup() {
