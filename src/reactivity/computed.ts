@@ -1,6 +1,6 @@
 import { ReactiveEffect } from "./effect";
 
-class CompoutedImpl {
+class ComputedImpl {
   private _effect: ReactiveEffect;
   private _dirty: boolean = true;
   private _value: any;
@@ -26,5 +26,5 @@ class CompoutedImpl {
   }
 }
 export function computed(getter) {
-  return new CompoutedImpl(getter);
+  return new ComputedImpl(getter);
 }
