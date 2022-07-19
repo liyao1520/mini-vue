@@ -7,20 +7,13 @@ export function render(vnode, container) {
   patch(vnode, container);
 }
 function patch(vnode, container: any) {
-  const { shapeFlag, children } = vnode;
+  const { shapeFlag } = vnode;
 
   // 去处理组件
   if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
   } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
-  }
-
-  // 组件 + children 为 object,则有slots
-  if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    if (isObject(children)) {
-      vnode.shapeFlag |= ShapeFlags.SLOT_CHILDREN;
-    }
   }
 }
 
