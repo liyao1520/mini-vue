@@ -6,7 +6,7 @@ export function isObject(obj) {
 export function isArray(arr) {
   return Array.isArray(arr);
 }
-export function isString(str) {
+export function isString(str: unknown) {
   return typeof str === "string";
 }
 

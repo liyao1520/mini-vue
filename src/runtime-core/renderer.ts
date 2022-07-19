@@ -1,31 +1,32 @@
 import { isArray, isObject, isString } from "../shared";
+import { ShapeFlags } from "../shared/ShapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
 
 export function render(vnode, container) {
   //  patch
   patch(vnode, container);
 }
-function patch(vnode: any, container: any) {
-  const type = vnode.type;
+function patch(vnode, container: any) {
+  const { type, shapeFlag } = vnode;
   // 去处理组件
-  if (isString(type)) {
+  if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
-  } else if (isObject(type)) {
+  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
   }
 }
 
-function processElement(vnode: any, container: any) {
+function processElement(vnode, container: any) {
   mountElement(vnode, container);
 }
 
-function mountElement(vnode: any, container: any) {
-  const { type: tag, props, children } = vnode;
-  const el = document.createElement(tag);
+function mountElement(vnode, container: any) {
+  const { type: tag, props, children, shapeFlag } = vnode;
+  const el = (vnode.el = document.createElement(tag as string));
   // string array
-  if (isString(children)) {
+  if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
-  } else if (isArray(children)) {
+  } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
     // 递归创建
     mountChildren(children, el);
   }
@@ -61,7 +62,10 @@ function mountComponent(vnode: any, container: any) {
 
 function setupRenderEffect(instance: any, container: any) {
   const subTree = instance.render.call(instance.proxy);
-
+  const { vnode } = instance;
   patch(subTree, container);
-  // vnode tree
+
+  // element -> mount
+
+  vnode.el = subTree.el;
 }

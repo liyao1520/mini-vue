@@ -1,7 +1,10 @@
 import { h } from "../../lib/mini-vue.esm.js";
+
+
+
 export const App = {
   render() {
-    console.log(this);
+    setTimeout(() => console.log(this.$el));
     return h("div", { class: "test", id: "test" }, [
       h("span", {}, "hi"),
       h("span", {}, this.msg),

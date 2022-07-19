@@ -17,13 +17,18 @@ export function setupComponent(instance) {
 }
 function setupStatefulComponent(instance: any) {
   const Component = instance.type;
+
   // 代理对象,用于render函数this
-  const { setupState } = instance;
   instance.proxy = new Proxy(
     {},
     {
       get(target, key) {
+        const { setupState } = instance;
         if (key in setupState) return setupState[key];
+
+        if (key === "$el") {
+          return instance.vnode.el;
+        }
       },
     }
   );
