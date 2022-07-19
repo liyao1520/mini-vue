@@ -35,7 +35,13 @@ function mountElement(vnode, container: any) {
   if (isObject(props)) {
     for (const key in props) {
       const val = props[key];
-      el.setAttribute(key, val);
+      // 是否为事件
+      if (isOn(key)) {
+        const event = key.slice(2).toLowerCase();
+        el.addEventListener(event, val);
+      } else {
+        el.setAttribute(key, val);
+      }
     }
   }
   container.appendChild(el);
@@ -68,4 +74,7 @@ function setupRenderEffect(instance: any, container: any) {
   // element -> mount
 
   vnode.el = subTree.el;
+}
+function isOn(key: string) {
+  return /^on[A-Z]/.test(key);
 }

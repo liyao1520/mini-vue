@@ -1,5 +1,7 @@
 export const extend = Object.assign;
-
+export function hasOwn(target: unknown, key: string) {
+  return Object.prototype.hasOwnProperty.call(target, key);
+}
 export function isObject(obj) {
   return typeof obj === "object" && obj != null;
 }

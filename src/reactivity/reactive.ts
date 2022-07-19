@@ -1,3 +1,4 @@
+import { isObject } from "../shared";
 import {
   readonlyHandlers,
   mutableHandlers,
@@ -21,6 +22,10 @@ export function shallowReadonly(raw) {
 }
 //创建响应式对象,可以创建readonly和reactive两种类型的proxy
 function createReactiveObject(raw, baseHandlers) {
+  if (!isObject(raw)) {
+    console.warn(`raw ${raw} 不是一个 object`);
+    return raw;
+  }
   return new Proxy(raw, baseHandlers);
 }
 

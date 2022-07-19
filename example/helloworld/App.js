@@ -1,6 +1,5 @@
 import { h } from "../../lib/mini-vue.esm.js";
-
-
+import { Foo } from "./Foo.js";
 
 export const App = {
   render() {
@@ -8,7 +7,18 @@ export const App = {
     return h("div", { class: "test", id: "test" }, [
       h("span", {}, "hi"),
       h("span", {}, this.msg),
-      h("span", null, "!"),
+      h(Foo, {
+        count: 2,
+      }),
+      h(
+        "button",
+        {
+          onClick() {
+            console.log("ok");
+          },
+        },
+        "btn"
+      ),
     ]);
   },
   setup() {
