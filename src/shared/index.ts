@@ -17,3 +17,4 @@ export function isFunction(fn: unknown) {
 export function hasChanged(value, newValue) {
   return !Object.is(value, newValue);
 }
+export const EMPTY_OBJECT = {};

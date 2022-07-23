@@ -1,7 +1,7 @@
 import { Fragment, Text } from "./vnode";
 import { ShapeFlags } from "../shared/ShapeFlags";
 import { createComponentInstance, setupComponent } from "./component";
-import { isObject } from "../shared";
+import { EMPTY_OBJECT, isObject } from "../shared";
 import { createAppAPI } from "./createApp";
 import { effect } from "../reactivity/effect";
 
@@ -55,7 +55,7 @@ export function createRenderer(options) {
     if (isObject(props)) {
       for (const key in props) {
         const val = props[key];
-        hostPatchProp(el, key, val);
+        hostPatchProp(el, key, null, val);
       }
     }
 
@@ -134,6 +134,35 @@ export function createRenderer(options) {
 
   function patchElement(n1, n2, container) {
     console.log("patchElement", n1, n2);
+    const oldProps = n1.props || EMPTY_OBJECT;
+    const newProps = n2.props || EMPTY_OBJECT;
+    const el = (n2.el = n1.el);
+    patchProps(el, oldProps, newProps);
+  }
+
+  function patchProps(el: any, oldProps: any, newProps: any) {
+    // props 可能是组件外部变量写死的,可以不用遍历 (优化点)
+    if (oldProps !== newProps) {
+      for (const key in newProps) {
+        const oldProp = oldProps[key];
+        const newProp = newProps[key];
+        //1. 值改变 -> 修改
+        //2. 新增 foo -> 新增
+        if (oldProp !== EMPTY_OBJECT) {
+          if (oldProp !== newProp) {
+            //3. null | undefined -> 删除 (在 runtime-dom 实现)
+            hostPatchProp(el, key, oldProp, newProp);
+          }
+        }
+      }
+
+      //4. bar 属性 在新的里面没了 -> 删除
+      for (const key in oldProps) {
+        if (!(key in newProps)) {
+          hostPatchProp(el, key, oldProps, null);
+        }
+      }
+    }
   }
 
   return {

@@ -10,13 +10,20 @@ function isOn(key: string) {
   return /^on[A-Z]/.test(key);
 }
 
-export function patchProp(el, key, value) {
+export function patchProp(el, key, oldValue, newValue) {
   // 是否为事件
   if (isOn(key)) {
     const event = key.slice(2).toLowerCase();
-    el.addEventListener(event, value);
+    el.removeEventListener(event, oldValue);
+    el.addEventListener(event, newValue);
   } else {
-    el.setAttribute(key, value);
+    // newValue 为 null 或者 undefined
+
+    if (newValue == null) {
+      el.removeAttribute(key);
+    } else {
+      el.setAttribute(key, newValue);
+    }
   }
 }
 const renderer: any = createRenderer({ createElement, insert, patchProp });
