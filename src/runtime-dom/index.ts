@@ -1,13 +1,9 @@
 import { createRenderer } from "../runtime-core";
 
 export function createElement(tag) {
-  console.log("createElement____________");
-
   return document.createElement(tag);
 }
 export function insert(el, parent) {
-  console.log("insert____________");
-
   parent.appendChild(el);
 }
 function isOn(key: string) {
@@ -15,8 +11,6 @@ function isOn(key: string) {
 }
 
 export function patchProp(el, key, value) {
-  console.log("patchProps____________");
-
   // 是否为事件
   if (isOn(key)) {
     const event = key.slice(2).toLowerCase();
@@ -25,7 +19,7 @@ export function patchProp(el, key, value) {
     el.setAttribute(key, value);
   }
 }
-const renderer: any = createRenderer({ createElement, insert, patchProp  });
+const renderer: any = createRenderer({ createElement, insert, patchProp });
 
 export function createApp(...args) {
   return renderer.createApp(...args);
