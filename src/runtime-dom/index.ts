@@ -3,8 +3,8 @@ import { createRenderer } from "../runtime-core";
 function createElement(tag) {
   return document.createElement(tag);
 }
-function insert(el, parent) {
-  parent.appendChild(el);
+function insert(child, parent, anchor) {
+  parent.insertBefore(child, anchor || null);
 }
 
 function remove(child) {
