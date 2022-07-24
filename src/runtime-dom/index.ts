@@ -1,13 +1,21 @@
 import { createRenderer } from "../runtime-core";
 
-export function createElement(tag) {
+function createElement(tag) {
   return document.createElement(tag);
 }
-export function insert(el, parent) {
+function insert(el, parent) {
   parent.appendChild(el);
 }
-function isOn(key: string) {
-  return /^on[A-Z]/.test(key);
+
+function remove(child) {
+  const parent = child.parentNode;
+  if (parent) {
+    parent.removeChild(child);
+  }
+}
+
+function setElementText(el, text) {
+  el.textContent = text;
 }
 
 export function patchProp(el, key, oldValue, newValue) {
@@ -26,10 +34,20 @@ export function patchProp(el, key, oldValue, newValue) {
     }
   }
 }
-const renderer: any = createRenderer({ createElement, insert, patchProp });
+const renderer: any = createRenderer({
+  createElement,
+  insert,
+  patchProp,
+  remove,
+  setElementText,
+});
 
 export function createApp(...args) {
   return renderer.createApp(...args);
+}
+
+function isOn(key: string) {
+  return /^on[A-Z]/.test(key);
 }
 
 export * from "../runtime-core";

@@ -11,13 +11,15 @@ export function createRenderer(options) {
     createElement: hostCreateElement,
     insert: hostInsert,
     patchProp: hostPatchProp,
+    remove: hostRemove,
+    setElementText: hostSetElementText,
   } = options;
 
   function render(vnode, container) {
     //  patch
     patch(null, vnode, container, null);
   }
-
+  // n1 老的 n2新的
   function patch(n1, n2, container: any, parentComponent) {
     const { shapeFlag, type } = n2;
 
@@ -104,7 +106,7 @@ export function createRenderer(options) {
     if (!n1) {
       mountElement(n2, container, parentComponent);
     } else {
-      patchElement(n1, n2, container);
+      patchElement(n1, n2, container, parentComponent);
     }
   }
 
@@ -132,12 +134,43 @@ export function createRenderer(options) {
     }
   }
 
-  function patchElement(n1, n2, container) {
+  function patchElement(n1, n2, container, parentComponent) {
     console.log("patchElement", n1, n2);
     const oldProps = n1.props || EMPTY_OBJECT;
     const newProps = n2.props || EMPTY_OBJECT;
     const el = (n2.el = n1.el);
+    patchChildren(n1, n2, container, parentComponent);
     patchProps(el, oldProps, newProps);
+  }
+  function patchChildren(n1: any, n2: any, container: any, parentComponent) {
+    const c1 = n1.children;
+    const c2 = n2.children;
+    // 新的为文本
+    if (n2.shapeFlag & ShapeFlags.TEXT_CHILDREN) {
+      // 老的是array,新的为text
+      if (n1.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        // 1. 把老的 children 清空
+        unmountChildren(n1.children);
+      }
+      // 2. 设置新的text
+      if (c1 !== c2) {
+        hostSetElementText(n1.el, c2);
+      }
+    } else {
+      // 新为array
+      if (n2.shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
+        // 清空文本,添加元素
+        hostSetElementText(n1.el, "");
+        mountChildren(c2, n1.el, parentComponent);
+      }
+    }
+  }
+  function unmountChildren(children) {
+    for (const vnode of children) {
+      const el = vnode.el;
+      // remove
+      hostRemove(el);
+    }
   }
 
   function patchProps(el: any, oldProps: any, newProps: any) {
