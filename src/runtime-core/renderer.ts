@@ -73,7 +73,10 @@ export function createRenderer(options) {
 
   function mountComponent(vnode: any, container: any, parentComponent, anchor) {
     //
-    const instance = createComponentInstance(vnode, parentComponent);
+    const instance = (vnode.component = createComponentInstance(
+      vnode,
+      parentComponent
+    ));
 
     setupComponent(instance);
 
@@ -81,7 +84,7 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffect(instance: any, container: any, anchor) {
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log("init");
         const subTree = (instance.subTree = instance.render.call(
@@ -94,13 +97,26 @@ export function createRenderer(options) {
         instance.isMounted = true;
       } else {
         console.log("update");
-        const subTree = instance.render.call(instance.proxy);
+        // 需要一个 新的 vnode
+        const { next, vnode, proxy } = instance;
+        if (next) {
+          next.el = vnode.el;
+          updateComponentPrevRender(instance, next);
+        }
+        const subTree = instance.render.call(proxy);
         const prevSubTree = instance.subTree;
         instance.subTree = subTree;
 
         patch(prevSubTree, subTree, container, instance, anchor);
       }
     });
+  }
+
+  function updateComponentPrevRender(instance, nextNode) {
+    instance.props = nextNode.props;
+    instance.vnode = nextNode;
+    instance.next = null;
+    // nextNode.component = instance;
   }
 
   function processElement(n1, n2, container: any, parentComponent, anchor) {
@@ -121,7 +137,14 @@ export function createRenderer(options) {
     if (!n1) {
       mountComponent(n2, container, parentComponent, anchor);
     } else {
+      updateComponent(n1, n2);
     }
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component);
+    instance.next = n2;
+    instance.update();
   }
 
   function processFragment(n1, n2, container, parentComponent, anchor) {
