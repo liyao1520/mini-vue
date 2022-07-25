@@ -5,6 +5,7 @@ import { EMPTY_OBJECT, isObject } from "../shared";
 import { createAppAPI } from "./createApp";
 import { effect } from "../reactivity/effect";
 import { shouldUpdateComponent } from "./componentUpdateUtils";
+import { queueJobs } from "./scheduler";
 
 // 用 createRenderer 可以渲染到不同的平台
 export function createRenderer(options) {
@@ -85,32 +86,40 @@ export function createRenderer(options) {
   }
 
   function setupRenderEffect(instance: any, container: any, anchor) {
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        console.log("init");
-        const subTree = (instance.subTree = instance.render.call(
-          instance.proxy
-        ));
-        const { vnode: initialVNode } = instance;
-        patch(null, subTree, container, instance, anchor);
-        // element -> mount
-        initialVNode.el = subTree.el;
-        instance.isMounted = true;
-      } else {
-        console.log("update");
-        // 需要一个 新的 vnode
-        const { next, vnode, proxy } = instance;
-        if (next) {
-          next.el = vnode.el;
-          updateComponentPrevRender(instance, next);
-        }
-        const subTree = instance.render.call(proxy);
-        const prevSubTree = instance.subTree;
-        instance.subTree = subTree;
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          console.log("init");
+          const subTree = (instance.subTree = instance.render.call(
+            instance.proxy
+          ));
+          const { vnode: initialVNode } = instance;
+          patch(null, subTree, container, instance, anchor);
+          // element -> mount
+          initialVNode.el = subTree.el;
+          instance.isMounted = true;
+        } else {
+          console.log("update");
 
-        patch(prevSubTree, subTree, container, instance, anchor);
+          // 需要一个 新的 vnode
+          const { next, vnode, proxy } = instance;
+          if (next) {
+            next.el = vnode.el;
+            updateComponentPrevRender(instance, next);
+          }
+          const subTree = instance.render.call(proxy);
+          const prevSubTree = instance.subTree;
+          instance.subTree = subTree;
+
+          patch(prevSubTree, subTree, container, instance, anchor);
+        }
+      },
+      {
+        scheduler() {
+          queueJobs(instance.update);
+        },
       }
-    });
+    );
   }
 
   function updateComponentPrevRender(instance, nextNode) {
