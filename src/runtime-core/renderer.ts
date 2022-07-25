@@ -4,6 +4,7 @@ import { createComponentInstance, setupComponent } from "./component";
 import { EMPTY_OBJECT, isObject } from "../shared";
 import { createAppAPI } from "./createApp";
 import { effect } from "../reactivity/effect";
+import { shouldUpdateComponent } from "./componentUpdateUtils";
 
 // 用 createRenderer 可以渲染到不同的平台
 export function createRenderer(options) {
@@ -143,8 +144,13 @@ export function createRenderer(options) {
 
   function updateComponent(n1, n2) {
     const instance = (n2.component = n1.component);
-    instance.next = n2;
-    instance.update();
+    if (shouldUpdateComponent(n1, n2)) {
+      instance.next = n2;
+      instance.update();
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
+    }
   }
 
   function processFragment(n1, n2, container, parentComponent, anchor) {

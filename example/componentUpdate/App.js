@@ -8,24 +8,34 @@ export default {
   name: "App",
   setup() {
     const msg = ref("123");
-    window.msg = msg
+    const bar = ref("111");
+    window.msg = msg;
 
     const changeChildProps = () => {
       msg.value = "456";
     };
-
-    return { msg, changeChildProps };
+    const changeOtherProps = () => {
+      bar.value = "000";
+    };
+    return { msg, changeChildProps, bar, changeOtherProps };
   },
 
   render() {
     return h("div", {}, [
-      h("div", {}, "你好"),
+      h("div", {}, "你好" + this.bar),
       h(
         "button",
         {
           onClick: this.changeChildProps,
         },
         "change child props"
+      ),
+      h(
+        "button",
+        {
+          onClick: this.changeOtherProps,
+        },
+        "change other props"
       ),
       h(Child, {
         msg: this.msg,
